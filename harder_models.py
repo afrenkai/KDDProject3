@@ -50,6 +50,8 @@ class LSTM:
         self.Wy = np.random.randn(output_size, hidden_size)
         self.by = np.zeros((output_size, 1))
 
+        logging.info(f'initialized LSTM with input size of {input size}, hidden size of {hidden_size}, output size of {output_size}, and learning rate of {self.lr}'
+
     def sigmoid(self, x):
         return 1 / (1 + np.exp(-x))
 
@@ -63,6 +65,7 @@ class LSTM:
         return 1 - np.tanh(x) ** 2
 
     def forward(self, X):
+        logging.info('starting fwd pass for LSTM')
         h_t = np.zeros((self.hidden_size, 1))
         C_t = np.zeros((self.hidden_size, 1))
         self.cache = {'h': [], 'C': [], 'f': [], 'i': [], 'o': [], 'C_tilde': [], 'x': []}
@@ -86,10 +89,11 @@ class LSTM:
             self.cache['o'].append(o_t)
             self.cache['C_tilde'].append(C_tilde_t)
             self.cache['x'].append(combined)
-        
+        logging.info('fwd pass done')
         return np.array(outputs).squeeze()
 
     def backward(self, X, y_true, y_pred):
+        logging.info('starting bck prop for LSTM')
         dWf, dWi, dWo, dWc = np.zeros_like(self.Wf), np.zeros_like(self.Wi), np.zeros_like(self.Wo), np.zeros_like(self.Wc)
         dbf, dbi, dbo, dbc = np.zeros_like(self.bf), np.zeros_like(self.bi), np.zeros_like(self.bo), np.zeros_like(self.bc)
         dWy, dby = np.zeros_like(self.Wy), np.zeros_like(self.by)
@@ -138,31 +142,34 @@ class LSTM:
         self.bc -= self.lr * dbc
         self.Wy -= self.lr * dWy
         self.by -= self.lr * dby
+        
+        logging.info('backprop done')
 
     def train(self, X, y_true, epochs=10):
+        logging.info(f'training for {epochs} epochs')
         for epoch in range(epochs):
             y_pred = self.forward(X)
             loss = np.mean((y_pred - y_true) ** 2)
-            print(f'Epoch {epoch+1}, Loss: {loss}')
+            logging.info(f'epoch {epoch + 1} / epochs, Loss : {Loss}')
             self.backward(X, y_true, y_pred)
-
+        self.logging('traning done for LSTM')
 
 class DNN:
     def __init__(self, layer_sizes, eta=0.01):
         self.layer_sizes = layer_sizes
         self.lr = eta
         self.params = self.initialize_params()
-
+        logging.info(f'initialized DNN with layer_sizes of {layer_sizes} and learning rate of {self.lr}')
     def initialize_params(self):
         np.random.seed(69)
         params = {}
         num_layers = len(self.layer_sizes)
-        
+        logging.info('beginning kaiming intialization')
+
         # shoutout my goat kaiming bro he cooked
         for l in range(1, num_layers):
             params['W' + str(l)] = np.random.randn(self.layer_sizes[l], self.layer_sizes[l-1]) * np.sqrt(2 / self.layer_sizes[l-1])
             params['b' + str(l)] = np.zeros((self.layer_sizes[l], 1))
-        
         return params
 
     def sigmoid(self, Z):
@@ -178,6 +185,8 @@ class DNN:
         return np.where(Z > 0, 1, 0)
 
     def forward(self, X):
+        logging.info('starting DNN forward pass')
+
         caches = {}
         A = X
         L = len(self.layer_sizes) - 1
@@ -192,10 +201,13 @@ class DNN:
         AL = ZL
         caches['A' + str(L)] = AL
         caches['Z' + str(L)] = ZL
+        logging.info('fwd pass done')
 
         return AL, caches
 
     def backward(self, X, y, caches):
+        logging.info('starting backprop for DNN')
+
         grads = {}
         m = X.shape[1]
         L = len(self.layer_sizes) - 1
@@ -211,24 +223,28 @@ class DNN:
             grads['dW' + str(l)] = dW
             grads['db' + str(l)] = db
             dAL = dZ
+        logging.info('backprop done for DNN')
         return grads
 
     def update_parameters(self, grads):
+        logging.info('updating params')
         L = len(self.layer_sizes) - 1
         for l in range(1, L+1):
             self.parameters['W' + str(l)] -= self.lr * grads['dW' + str(l)]
             self.parameters['b' + str(l)] -= self.lr * grads['db' + str(l)]
-
+        logging.info('update complete')
+        
     def compute_loss(self, y_pred, y_true):
+        logging.info('computed loss')
         return np.mean((y_pred - y_true) ** 2)
 
     def train(self, X, y, epochs=100):
+        logging.info(f'Traning DNN for {epochs} epochs')
         for epoch in range(epochs):
             y_pred, caches = self.forward(X)
-            
             loss = self.compute_loss(y_pred, y)
-            print(f'Epoch {epoch+1}, Loss: {loss}')
-            
+            print(f'Epoch {epoch+1}/{epochs}, Loss: {loss}')
             grads = self.backward(X, y, caches)
             self.update_parameters(grads)
+        logging.info('traning done for DNN')
 
