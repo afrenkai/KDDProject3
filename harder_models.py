@@ -27,7 +27,7 @@ class SGDRegressor():
 
                 self.w -= self.lr * dw
                 self.b -= self.lr * db
-            if (epoch + 1) % 5 == 0 or epoch == self.epochs - 1:
+            if (epoch + 1) % 10 == 0 or epoch == self.epochs - 1:
                 logging.info(f"Epoch {epoch+1}/{self.epochs}: Weights: {self.w}, Bias: {self.b}")
 
     def mse(self, y_true, y_hat):
