@@ -11,6 +11,4 @@
 module load cuda
 module load python/3.10.13
 source ~/KDDProject3/kdd/bin/activate
-python get_data.py
-python preprocess.py
 python model_run.py
