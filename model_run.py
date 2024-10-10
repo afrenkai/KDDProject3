@@ -1,7 +1,7 @@
 import logging
 from models import model_picker
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
 from tqdm import tqdm
 print('imports done')
@@ -11,7 +11,7 @@ print('imports done')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 tqdm.pandas()
 
-df = pd.read_csv("hf://datasets/gauss314/options-IV-SP500/data_IV_USA.csv")
+df = pd.read_csv("data/options.csv")
 
 print('df done')
 # Select features and target
@@ -26,7 +26,7 @@ logging.info("Splitting data into training and testing sets.")
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=69)
 
 # Standardize the data
-scaler = StandardScaler()
+scaler = MinMaxScaler()
 logging.info("Standardizing training data.")
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
@@ -34,13 +34,13 @@ X_test_scaled = scaler.transform(X_test)
 # Model Picker with logging for various models
 
 # Linear Regression
-logging.info("Running Linear Regression model...")
-ols_results = model_picker('OLS Linear Regression', 
-                           X_train=X_train_scaled, 
-                           y_train=y_train, 
-                           X_test=X_test_scaled, 
-                           y_test=y_test)
-logging.info(f"OLS Results: {ols_results}")
+# logging.info("Running Linear Regression model...")
+# ols_results = model_picker('OLS Linear Regression', 
+#                            X_train=X_train_scaled, 
+#                            y_train=y_train, 
+#                            X_test=X_test_scaled, 
+#                            y_test=y_test)
+# logging.info(f"OLS Results: {ols_results}")
 
 # # Gradient Boosting Regression
 # logging.info("Running Gradient Boost Regression model...")
