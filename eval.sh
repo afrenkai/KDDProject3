@@ -6,7 +6,7 @@
 #SBATCH -p academic
 #SBATCH -t 16:00:00
 #SBATCH --gres=gpu:1
-#SBATCH --output=/home/afrenk/van_test_%j.txt
+#SBATCH --output=/home/afrenk/KDDProject3/val_test_%j.txt
 
 module load cuda
 module load python/3.10.13
