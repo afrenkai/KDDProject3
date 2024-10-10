@@ -1,9 +1,8 @@
 import logging
 from models import model_picker
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
 from tqdm import tqdm
+from preprocess import preprocess
 print('imports done')
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -12,18 +11,9 @@ tqdm.pandas()
 df = pd.read_csv("data/options.csv")
 
 print('df done')
-feat = ['strikes_spread', 'calls_contracts_traded', 'puts_contracts_traded', 
-        'calls_open_interest', 'puts_open_interest', 'expirations_number', 
-        'contracts_number', 'hv_20', 'hv_40', 'hv_60', 'hv_120', 'hv_180', 'VIX']
-X = df[feat]
-y = df['DITM_IV']
 
 logging.info("Splitting data into training and testing sets.")
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=69)
-scaler = MinMaxScaler()
-logging.info("Standardizing training data.")
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
+X_train, X_test, y_train, y_test = preprocess(df)
 
 
 # Linear Regression
@@ -65,10 +55,10 @@ X_test_scaled = scaler.transform(X_test)
 # SGD Linear Regression
 logging.info("Running SGD Linear Regression model...")
 sgd_lr_results = model_picker('SGD Linear Regression', 
-                              X_train=X_train_scaled, 
-                              y_train=y_train, 
-                              X_test=X_test_scaled, 
-                              y_test=y_test)
+                              X_train= X_train, 
+                              y_train= y_train, 
+                              X_test = X_test, 
+                              y_test = y_test)
 logging.info(f"SGD Linear Regression Results: {sgd_lr_results}")
 
 # # Deep Neural Network

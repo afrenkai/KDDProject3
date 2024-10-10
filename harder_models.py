@@ -33,9 +33,6 @@ class SGDRegressor():
     def mse(self, y_true, y_hat):
         return np.mean((y_true - y_hat)) ** 2
 
-
-
-
 class LSTM:
     def __init__(self, input_size, hidden_size, output_size, eta=0.001):
         self.input_size = input_size
