@@ -1,21 +1,25 @@
 import numpy as np
+import logging
+
 class SGDRegressor():
     def __init__ (self, eta = 0.001, epochs = 1000):
         self.lr = eta
         self.epochs = epochs
         self.w = None
         self.b = None
-
+        logging.info(f'Initialized SGD Regression with eta of {self.lr}')
     def predict(self, X):
+        logging.info('predicting With SGD')
         return np.dot(X, self.w) + self.b
     
     def fit(self, X, y):
         n, m = X.shape
-
+        logging.info(f'Training began with {n} samples and {m} features')
+        y = y.to_numpy()
         self.w = np.zeros(m)
         self.b = 0
 
-        for _ in range(self.epochs):
+        for epoch in range(self.epochs):
             for i in range (n):
                 y_hat = np.dot(X[i], self.w) + self.b
                 dw = (y_hat - y[i]) * X[i]
@@ -23,6 +27,9 @@ class SGDRegressor():
 
                 self.w -= self.lr * dw
                 self.b -= self.lr * db
+            if (epoch + 1) % 5 == 0 or epoch == self.epochs - 1:
+                logging.info(f"Epoch {epoch+1}/{self.epochs}: Weights: {self.w}, Bias: {self.b}")
+
     def mse(self, y_true, y_hat):
         return np.mean((y_true - y_hat)) ** 2
 
