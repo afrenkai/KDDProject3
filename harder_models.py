@@ -4,6 +4,10 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+logging.info(f"Using device: {device}")
+
 class SGDRegressor:
     def __init__(self, eta=0.001, epochs=1000):
         self.lr = eta
@@ -295,6 +299,8 @@ class OptionsNN(nn.Module):
         self.criterion = nn.MSELoss()
         self.optimizer = optim.Adam(self.parameters(), lr = eta)
         logging.info("OptionsNN model initialized with input size: %d, learning rate: %f", input_size, eta)
+
+        self.to(device)
     def _initialize_weights_kaiming(self):
         for layer in self.children():
             if isinstance(layer, nn.Linear):
@@ -312,21 +318,26 @@ class OptionsNN(nn.Module):
         x = self.fc4(x)
         return x
 
-    def train_model (self, X_train, y_train, epochs=50, batch_size=32, val_data=None):
+    def train_model(self, X_train, y_train, epochs=50, batch_size=32, val_data=None):
         train_size = X_train.size(0)
-        logging.info("Training started for %d epochs with batch size %d", epochs, batch_size)
+        logger.info("Training started for %d epochs with batch size %d", epochs, batch_size)
 
-        # Single progress bar for the entire training loop across all epochs
+
+        X_train = X_train.to(device)
+        y_train = y_train.to(device)
+
+
         progress_bar = tqdm(range(epochs), desc="Training Progress", unit="epoch")
 
         for epoch in progress_bar:
             self.train()
-            perm = torch.randperm(train_size)
+            perm = torch.randperm(train_size).to(device)  # Move permutation to GPU
             epoch_loss = 0
 
             for i in range(0, train_size, batch_size):
                 idxs = perm[i:i + batch_size]
                 x_bat, y_bat = X_train[idxs], y_train[idxs]
+
                 self.optimizer.zero_grad()
                 y_pred = self.forward(x_bat)
                 loss = self.criterion(y_pred, y_bat)
@@ -335,26 +346,38 @@ class OptionsNN(nn.Module):
                 epoch_loss += loss.item()
 
             avg_loss = epoch_loss / (train_size // batch_size)
-            progress_bar.set_postfix(loss=avg_loss)  # Update progress bar at the end of each epoch
+            progress_bar.set_postfix(loss=avg_loss)
 
             if (epoch + 1) % 10 == 0:
-                logging.info(f'Epoch [{epoch + 1}/{epochs}], Loss: {avg_loss:.4f}')
+                logging.info(f'Epoch [{epoch+1}/{epochs}], Loss: {avg_loss:.4f}')
+
 
         logging.info("Training completed.")
     def evaluate(self, X_test, y_test):
         self.eval()
-        logging.info("eval started on test set")
+        logging.info("Evaluation started on test data.")
+
+        # Move test data to GPU
+        X_test = X_test.to(device)
+        y_test = y_test.to(device)
+
         with torch.no_grad():
             y_test_pred = self.forward(X_test)
-            test_loss = self.critetion(y_test_pred, y_test)
-            print(f'Test Loss (MSE): {test_loss.item(): .4f}')
+            test_loss = self.criterion(y_test_pred, y_test)
+            logging.info(f'Test Loss (MSE): {test_loss.item():.4f}')
         return test_loss.item()
 
     def predict(self, x):
         self.eval()
-        logging.info('predicting...')
+
+        # Move input to GPU
+        x = x.to(device)
+
         with torch.no_grad():
-            return self.forward(x)
+            y_pred = self.forward(x)
+
+        # Move output back to CPU for compatibility with NumPy
+        return y_pred.cpu()
 
 
 
