@@ -3,11 +3,11 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import root_mean_squared_error, mean_absolute_error, r2_score, explained_variance_score
 from sklearn.svm import SVR
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from harder_models import SGDRegressor, LSTM, DNN
-
+from harder_models import SGDRegressor, LSTM, OptionsNN
+import torch
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def model_picker(type: str, X_train, y_train, X_test, y_test):
+def model_picker(type: str, X_train, y_train, X_test, y_test, init_type = None):
     logging.info(f"Starting model picker for model: {type}")
 
     if X_train is None or y_train is None or X_test is None or y_test is None:
@@ -104,17 +104,25 @@ def model_picker(type: str, X_train, y_train, X_test, y_test):
             mse = rmse ** 2
 
         elif type == 'Deep Neural Network':
-            logging.info("Initializing Deep Neural Network model...")
-            model = DNN(layer_sizes=[X_train.shape[1], 64, 32, 1], eta=0.01)
-            model.train(X_train, y_train, epochs=100)
-            logging.info("Training completed for DNN model.")
+            input_size = X_train.shape[1]
+            model = OptionsNN(input_size = input_size, init_type = init_type)
 
-            y_hat, _ = model.forward(X_test)
-            rmse = root_mean_squared_error(y_test, y_hat)
-            r2 = r2_score(y_test, y_hat)
-            mae = mean_absolute_error(y_test, y_hat)
-            evs = explained_variance_score(y_test, y_hat)
-            mse = rmse ** 2
+            if not isinstance(X_train, torch.Tensor):
+                X_train = torch.tensor(X_train, dtype = torch.float32)
+                y_train = torch.tensor(y_train, dtype = torch.float32).reshape(-1, 1)
+                X_test = torch.tensor(X_test, dtype = torch.float32)
+                y_test = torch.tensor(y_test.to_numpy(), dtype = torch.float32).reshape(-1, 1)
+            model.train_model(X_train, y_train)
+            logging.info('training finished for DNN')
+            y_hat_tensor = model.predict(X_test)
+            y_hat = y_hat_tensor.to_numpy()
+            y_test_np = y_test.to_numpy(y_test)
+
+            rmse = root_mean_squared_error(y_test_np, y_hat)
+            r2 = r2_score(y_test_np, y_hat)
+            mae = mean_absolute_error(y_test_np, y_hat)
+            evs = explained_variance_score(y_test_np, y_hat)
+            mse = rmse ** 2  # Mean squared error
 
         else:
             logging.error(f"Unsupported model type: {type}")

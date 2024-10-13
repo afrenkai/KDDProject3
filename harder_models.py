@@ -1,13 +1,17 @@
 import numpy as np
 import logging
-
-class SGDRegressor():
-    def __init__ (self, eta = 0.001, epochs = 1000):
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from tqdm import tqdm
+class SGDRegressor:
+    def __init__(self, eta=0.001, epochs=1000):
         self.lr = eta
         self.epochs = epochs
         self.w = None
         self.b = None
         logging.info(f'Initialized SGD Regression with eta of {self.lr}')
+
     def predict(self, X):
         logging.info('predicting With SGD')
         return np.dot(X, self.w) + self.b
@@ -20,18 +24,20 @@ class SGDRegressor():
         self.b = 0
 
         for epoch in range(self.epochs):
-            for i in range (n):
+            for i in range(n):
                 y_hat = np.dot(X[i], self.w) + self.b
                 dw = (y_hat - y[i]) * X[i]
-                db = (y_hat -  y[i])
+                db = (y_hat - y[i])
 
                 self.w -= self.lr * dw
                 self.b -= self.lr * db
             if (epoch + 1) % 10 == 0 or epoch == self.epochs - 1:
                 logging.info(f"Epoch {epoch+1}/{self.epochs}: Weights: {self.w}, Bias: {self.b}")
 
-    def mse(self, y_true, y_hat):
+    @staticmethod
+    def mse(y_true, y_hat):
         return np.mean((y_true - y_hat)) ** 2
+
 
 class LSTM:
     def __init__(self, input_size, hidden_size, output_size, eta=0.001):
@@ -50,7 +56,10 @@ class LSTM:
         self.Wy = np.random.randn(output_size, hidden_size)
         self.by = np.zeros((output_size, 1))
 
-        logging.info(f'initialized LSTM with input size of {input size}, hidden size of {hidden_size}, output size of {output_size}, and learning rate of {self.lr}'
+        logging.info(f'initialized LSTM with input size of {input_size}, '
+                     f'hidden size of {hidden_size}, '
+                     f'output size of {output_size}, '
+                     f'and learning rate of {self.lr}')
 
     def sigmoid(self, x):
         return 1 / (1 + np.exp(-x))
@@ -150,101 +159,202 @@ class LSTM:
         for epoch in range(epochs):
             y_pred = self.forward(X)
             loss = np.mean((y_pred - y_true) ** 2)
-            logging.info(f'epoch {epoch + 1} / epochs, Loss : {Loss}')
+            logging.info(f'epoch {epoch + 1} / epochs, Loss : {loss}')
             self.backward(X, y_true, y_pred)
-        self.logging('traning done for LSTM')
+        logging.info('training done for LSTM')
 
-class DNN:
-    def __init__(self, layer_sizes, eta=0.01):
-        self.layer_sizes = layer_sizes
-        self.lr = eta
-        self.params = self.initialize_params()
-        logging.info(f'initialized DNN with layer_sizes of {layer_sizes} and learning rate of {self.lr}')
-    def initialize_params(self):
-        np.random.seed(69)
-        params = {}
-        num_layers = len(self.layer_sizes)
-        logging.info('beginning kaiming intialization')
+# class DNN:
+#     def __init__(self, layer_sizes, eta=0.01):
+#         self.layer_sizes = layer_sizes
+#         self.lr = eta
+#         self.params = self.initialize_params()
+#         logging.info(f'initialized DNN with layer_sizes of {layer_sizes} and learning rate of {self.lr}')
+#     def initialize_params(self):
+#         np.random.seed(69)
+#         params = {}
+#         num_layers = len(self.layer_sizes)
+#         logging.info('beginning kaiming intialization')
+#
+#
+#         for l in range(1, num_layers):
+#             params['W' + str(l)] = np.random.randn(self.layer_sizes[l], self.layer_sizes[l-1]) * np.sqrt(2 / self.layer_sizes[l-1])
+#             params['b' + str(l)] = np.zeros((self.layer_sizes[l], 1))
+#         return params
+#
+#     def sigmoid(self, Z):
+#         return 1 / (1 + np.exp(-Z))
+#
+#     def sigmoid_derivative(self, Z):
+#         return self.sigmoid(Z) * (1 - self.sigmoid(Z))
+#
+#     def relu(self, Z):
+#         return np.maximum(0, Z)
+#
+#     def relu_derivative(self, Z):
+#         return np.where(Z > 0, 1, 0)
+#
+#     def forward(self, X):
+#         X = X.T  # Transpose input
+#         logging.info('starting DNN forward pass')
+#
+#         caches = {}
+#         A = X
+#         L = len(self.layer_sizes) - 1
+#
+#         for l in range(1, L):
+#             logging.info(f'Shape of W{l}: {self.params["W" + str(l)].shape}')
+#             logging.info(f'Shape of A{l - 1}: {A.shape}')
+#             Z = np.dot(self.params['W' + str(l)], A) + self.params['b' + str(l)]
+#             A = self.relu(Z)
+#             caches['A' + str(l)] = A
+#             caches['Z' + str(l)] = Z
+#
+#         ZL = np.dot(self.params['W' + str(L)], A) + self.params['b' + str(L)]
+#         AL = ZL  # No activation for regression
+#
+#         caches['A' + str(L)] = AL
+#         caches['Z' + str(L)] = ZL
+#         logging.info('fwd pass done')
+#
+#         return AL, caches
+#
+#     def backward(self, X, y, caches):
+#         logging.info('starting backprop for DNN')
+#
+#         grads = {}
+#         m = X.shape[1]
+#         L = len(self.layer_sizes) - 1
+#         AL = caches['A' + str(L)]
+#
+#         # Compute gradient of AL with respect to loss
+#         dAL = (AL - y) / m
+#         logging.info(f'Shape of dAL: {dAL.shape}')
+#
+#         grads['dW' + str(L)] = np.dot(dAL, caches['A' + str(L - 1)].T)
+#         grads['db' + str(L)] = np.sum(dAL, axis=1, keepdims=True)
+#
+#         for l in reversed(range(1, L)):
+#             dZ = np.dot(self.params['W' + str(l + 1)].T, dAL) * self.relu_derivative(caches['Z' + str(l)])
+#             logging.info(f'Shape of dZ at layer {l}: {dZ.shape}')
+#
+#             dW = np.dot(dZ, caches['A' + str(l - 1)].T if l > 1 else X.T)
+#             db = np.sum(dZ, axis=1, keepdims=True)
+#
+#             grads['dW' + str(l)] = dW
+#             grads['db' + str(l)] = db
+#             dAL = dZ
+#         logging.info('backprop done for DNN')
+#         return grads
+#
+#     def update_parameters(self, grads):
+#         logging.info('updating params')
+#         L = len(self.layer_sizes) - 1
+#         for l in range(1, L+1):
+#             self.params['W' + str(l)] -= self.lr * grads['dW' + str(l)]
+#             self.params['b' + str(l)] -= self.lr * grads['db' + str(l)]
+#         logging.info('update complete')
+#
+#     def compute_loss(self, y_pred, y_true):
+#         logging.info(f'Prediction shape: {y_pred.shape}, True label shape: {y_true.shape}')
+#
+#         # Reshape y_true to match y_pred if necessary
+#         if y_true.shape != y_pred.shape:
+#             y_true = y_true.reshape(y_pred.shape)
+#
+#         return np.mean((y_pred - y_true) ** 2)
+#
+#     def train(self, X, y, epochs=100):
+#         logging.info(f'Training DNN for {epochs} epochs')
+#
+#         # Transpose y if it doesn't match the shape of y_pred
+#         if y.shape[0] != self.layer_sizes[-1]:
+#             y = y.T  # Transpose to match y_pred
+#
+#         for epoch in range(epochs):
+#             y_pred, caches = self.forward(X)
+#             loss = self.compute_loss(y_pred, y)
+#             print(f'Epoch {epoch + 1}/{epochs}, Loss: {loss}')
+#             grads = self.backward(X, y, caches)
+#             self.update_parameters(grads)
+#         logging.info('training done for DNN')
+
+class OptionsNN(nn.Module):
+    def __init__(self, input_size = 13, eta=0.01, init_type = None):
+        super(OptionsNN, self).__init__()
+        self.fc1 = nn.Linear(input_size, 128) #fully connected layer 1. 13 feats currently in preprocessing, so 13 is input_size
+        self.fc2 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(64, 32)
+        self.fc4 = nn.Linear(32, 1)
 
         # shoutout my goat kaiming bro he cooked
-        for l in range(1, num_layers):
-            params['W' + str(l)] = np.random.randn(self.layer_sizes[l], self.layer_sizes[l-1]) * np.sqrt(2 / self.layer_sizes[l-1])
-            params['b' + str(l)] = np.zeros((self.layer_sizes[l], 1))
-        return params
+        if init_type == 'kaiming':
+            self._initialize_weights_kaiming()
+        elif init_type == 'xavier':
+            self._initialize_weights_xavier()
 
-    def sigmoid(self, Z):
-        return 1 / (1 + np.exp(-Z))
+        self.criterion = nn.MSELoss()
+        self.optimizer = optim.Adam(self.parameters(), lr = eta)
+        logging.info("OptionsNN model initialized with input size: %d, learning rate: %f", input_size, eta)
+    def _initialize_weights_kaiming(self):
+        for layer in self.children():
+            if isinstance(layer, nn.Linear):
+                nn.init.kaiming_normal_(layer.weight, nonlinearity = 'relu')
+        logging.info("Goated Kaiming Methods Done")
+    def _initialize_weights_xavier(self):
+        for layer in self.children():
+            if isinstance(layer, nn.Linear):
+                nn.init.xavier_normal_(layer.weight)
+        logging.info('Cringe Xavier Method')
+    def forward(self, x):
+        x = torch.relu(self.fc1(x))
+        x = torch.relu(self.fc2(x))
+        x = torch.relu(self.fc3(x))
+        x = self.fc4(x)
+        return x
 
-    def sigmoid_derivative(self, Z):
-        return self.sigmoid(Z) * (1 - self.sigmoid(Z))
+    def train_model (self, X_train, y_train, epochs=50, batch_size=32, val_data=None):
+        train_size = X_train.size(0)
+        logging.info("Training started for %d epochs with batch size %d", epochs, batch_size)
 
-    def relu(self, Z):
-        return np.maximum(0, Z)
+        # Single progress bar for the entire training loop across all epochs
+        progress_bar = tqdm(range(epochs), desc="Training Progress", unit="epoch")
 
-    def relu_derivative(self, Z):
-        return np.where(Z > 0, 1, 0)
+        for epoch in progress_bar:
+            self.train()
+            perm = torch.randperm(train_size)
+            epoch_loss = 0
 
-    def forward(self, X):
-        logging.info('starting DNN forward pass')
+            for i in range(0, train_size, batch_size):
+                idxs = perm[i:i + batch_size]
+                x_bat, y_bat = X_train[idxs], y_train[idxs]
+                self.optimizer.zero_grad()
+                y_pred = self.forward(x_bat)
+                loss = self.criterion(y_pred, y_bat)
+                loss.backward()
+                self.optimizer.step()
+                epoch_loss += loss.item()
 
-        caches = {}
-        A = X
-        L = len(self.layer_sizes) - 1
+            avg_loss = epoch_loss / (train_size // batch_size)
+            progress_bar.set_postfix(loss=avg_loss)  # Update progress bar at the end of each epoch
 
-        for l in range(1, L):
-            Z = np.dot(self.parameters['W' + str(l)], A) + self.parameters['b' + str(l)]
-            A = self.relu(Z)
-            caches['A' + str(l)] = A
-            caches['Z' + str(l)] = Z
-        
-        ZL = np.dot(self.parameters['W' + str(L)], A) + self.parameters['b' + str(L)]
-        AL = ZL
-        caches['A' + str(L)] = AL
-        caches['Z' + str(L)] = ZL
-        logging.info('fwd pass done')
+            if (epoch + 1) % 10 == 0:
+                logging.info(f'Epoch [{epoch + 1}/{epochs}], Loss: {avg_loss:.4f}')
 
-        return AL, caches
+        logging.info("Training completed.")
+    def evaluate(self, X_test, y_test):
+        self.eval()
+        logging.info("eval started on test set")
+        with torch.no_grad():
+            y_test_pred = self.forward(X_test)
+            test_loss = self.critetion(y_test_pred, y_test)
+            print(f'Test Loss (MSE): {test_loss.item(): .4f}')
+        return test_loss.item()
 
-    def backward(self, X, y, caches):
-        logging.info('starting backprop for DNN')
+    def predict(self, x):
+        self.eval()
+        logging.info('predicting...')
+        with torch.no_grad():
+            return self.forward(x)
 
-        grads = {}
-        m = X.shape[1]
-        L = len(self.layer_sizes) - 1
-        AL = caches['A' + str(L)]
-        dAL = (AL - y) / m
-        grads['dW' + str(L)] = np.dot(dAL, caches['A' + str(L-1)].T)
-        grads['db' + str(L)] = np.sum(dAL, axis=1, keepdims=True)
-        for l in reversed(range(1, L)):
-            dZ = np.dot(self.parameters['W' + str(l+1)].T, dAL) * self.relu_derivative(caches['Z' + str(l)])
-            dW = np.dot(dZ, caches['A' + str(l-1)].T if l > 1 else X.T)
-            db = np.sum(dZ, axis=1, keepdims=True)
-            
-            grads['dW' + str(l)] = dW
-            grads['db' + str(l)] = db
-            dAL = dZ
-        logging.info('backprop done for DNN')
-        return grads
 
-    def update_parameters(self, grads):
-        logging.info('updating params')
-        L = len(self.layer_sizes) - 1
-        for l in range(1, L+1):
-            self.parameters['W' + str(l)] -= self.lr * grads['dW' + str(l)]
-            self.parameters['b' + str(l)] -= self.lr * grads['db' + str(l)]
-        logging.info('update complete')
-        
-    def compute_loss(self, y_pred, y_true):
-        logging.info('computed loss')
-        return np.mean((y_pred - y_true) ** 2)
-
-    def train(self, X, y, epochs=100):
-        logging.info(f'Traning DNN for {epochs} epochs')
-        for epoch in range(epochs):
-            y_pred, caches = self.forward(X)
-            loss = self.compute_loss(y_pred, y)
-            print(f'Epoch {epoch+1}/{epochs}, Loss: {loss}')
-            grads = self.backward(X, y, caches)
-            self.update_parameters(grads)
-        logging.info('traning done for DNN')
 

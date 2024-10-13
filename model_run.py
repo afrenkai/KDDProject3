@@ -53,19 +53,19 @@ X_train, X_test, y_train, y_test = preprocess(df)
 # logging.info(f"LSTM Results: {lstm_results}")
 
 # SGD Linear Regression
-logging.info("Running SGD Linear Regression model...")
-sgd_lr_results = model_picker('SGD Linear Regression', 
-                              X_train= X_train, 
-                              y_train= y_train, 
-                              X_test = X_test, 
-                              y_test = y_test)
-logging.info(f"SGD Linear Regression Results: {sgd_lr_results}")
+# logging.info("Running SGD Linear Regression model...")
+# sgd_lr_results = model_picker('SGD Linear Regression',
+#                               X_train= X_train,
+#                               y_train= y_train,
+#                               X_test = X_test,
+#                               y_test = y_test)
+# logging.info(f"SGD Linear Regression Results: {sgd_lr_results}")
 
-# # Deep Neural Network
-# logging.info("Running Deep Neural Network model...")
-# dnn_results = model_picker('Deep Neural Network',  
-#                            X_train=X_train_scaled, 
-#                            y_train=y_train, 
-#                            X_test=X_test_scaled, 
-#                            y_test=y_test)
-# logging.info(f"DNN Results: {dnn_results}")
+# Deep Neural Network
+logging.info("Running Deep Neural Network model...")
+dnn_results = model_picker('Deep Neural Network',
+                           X_train=X_train,
+                           y_train=y_train,
+                           X_test=X_test,
+                           y_test=y_test)
+logging.info(f"DNN Results: {dnn_results}")
