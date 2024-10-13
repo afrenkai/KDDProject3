@@ -11,5 +11,5 @@
 module load cuda
 module load python/3.10.13
 source ~/KDDProject3/kdd/bin/activate
-cd model\_runs
+cd ../model\_runs
 python ols.py
