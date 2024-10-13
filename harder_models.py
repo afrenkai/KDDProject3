@@ -320,7 +320,7 @@ class OptionsNN(nn.Module):
 
     def train_model(self, X_train, y_train, epochs=50, batch_size=32, val_data=None):
         train_size = X_train.size(0)
-        logger.info("Training started for %d epochs with batch size %d", epochs, batch_size)
+        logging.info("Training started for %d epochs with batch size %d", epochs, batch_size)
 
 
         X_train = X_train.to(device)
