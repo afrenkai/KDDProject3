@@ -312,6 +312,8 @@ class OptionsNN(nn.Module):
                 nn.init.xavier_normal_(layer.weight)
         logging.info('Cringe Xavier Method')
     def forward(self, x):
+        x = x.view(x.size(0), -1)  # Flatten to (batch_size, num_features)
+
         x = torch.relu(self.fc1(x))
         x = torch.relu(self.fc2(x))
         x = torch.relu(self.fc3(x))

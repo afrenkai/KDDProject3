@@ -37,7 +37,7 @@ def model_picker(type: str, X_train, y_train, X_test, y_test, init_type = None):
 
         elif type == 'Random Forest Regression':
             logging.info("Initializing Random Forest Regression model...")
-            model = RandomForestRegressor()
+            model = RandomForestRegressor(verbose = 1)
             model.fit(X_train, y_train)
             logging.info("Training completed for Random Forest Regression.")
 
@@ -50,7 +50,7 @@ def model_picker(type: str, X_train, y_train, X_test, y_test, init_type = None):
 
         elif type == 'Gradient Boost Regression':
             logging.info("Initializing Gradient Boost Regression model...")
-            model = GradientBoostingRegressor()
+            model = GradientBoostingRegressor(verbose = 1)
             model.fit(X_train, y_train)
             logging.info("Training completed for Gradient Boost Regression.")
 
@@ -63,7 +63,7 @@ def model_picker(type: str, X_train, y_train, X_test, y_test, init_type = None):
 
         elif type == 'Support Vector Regression':
             logging.info("Initializing Support Vector Regression model...")
-            model = SVR()
+            model = SVR(verbose = 1)
             model.fit(X_train, y_train)
             logging.info("Training completed for Support Vector Regression.")
 
