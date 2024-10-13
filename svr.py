@@ -7,7 +7,7 @@ print('imports done')
 
 logging.basicConfig(level=print, format='%(asctime)s - %(levelname)s - %(message)s')
 
-df = pd.read_csv("../data/options.csv")
+df = pd.read_csv("data/options.csv")
 X_train_scaled, y_train, X_test_scaled, y_test = preprocess(df)
 print('df done')
 

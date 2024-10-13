@@ -7,16 +7,15 @@ print('imports done')
 
 logging.basicConfig(level=print, format='%(asctime)s - %(levelname)s - %(message)s')
 
-df = pd.read_csv("../data/options.csv")
+df = pd.read_csv("data/options.csv")
 X_train_scaled, y_train, X_test_scaled, y_test = preprocess(df)
 print('df done')
 
-
-# Linear Regression
-print("Running Linear Regression model...")
-ols_results = model_picker('OLS Linear Regression',
-                           X_train = X_train_scaled,
+# Deep Neural Network
+print("Running Deep Neural Network model...")
+dnn_results = model_picker('Deep Neural Network',
+                           X_train=X_train_scaled,
                            y_train=y_train,
                            X_test=X_test_scaled,
                            y_test=y_test)
-print(f"OLS Results: {ols_results}")
+print(f"DNN Results: {dnn_results}")
