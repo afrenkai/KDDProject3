@@ -1,0 +1,10 @@
+/cm/local/apps/slurm/var/spool/job759647/slurm_script: line 13: /home/afrenk/KDDProject3/kdd/bin/activate: No such file or directory
+/cm/local/apps/slurm/var/spool/job759647/slurm_script: line 14: cd: model_runs: No such file or directory
+[Parallel(n_jobs=1)]: Done  49 tasks      | elapsed: 58.0min
+[Parallel(n_jobs=1)]: Done  49 tasks      | elapsed:   26.0s
+imports done
+Splitting data into training and testing sets.
+Standardizing training data.
+df done
+Running Random Forest Regression model
+Random Forest Results: RMSE: 8.878824186498344, R2: 0.8576320111376408, MAE: 5.491424090668578, Explained Variance Score: 0.8576609299230132, MSE: 78.83351893474797

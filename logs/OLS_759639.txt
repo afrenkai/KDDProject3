@@ -1,0 +1,8 @@
+/cm/local/apps/slurm/var/spool/job759639/slurm_script: line 13: /home/afrenk/KDDProject3/kdd/bin/activate: No such file or directory
+/cm/local/apps/slurm/var/spool/job759639/slurm_script: line 14: cd: ../model_runs: No such file or directory
+imports done
+Splitting data into training and testing sets.
+Standardizing training data.
+df done
+Running Linear Regression model...
+OLS Results: RMSE: 18.819014682342054, R2: 0.3604195217277246, MAE: 13.286751633588045, Explained Variance Score: 0.36042025401931976, MSE: 354.1553136142058

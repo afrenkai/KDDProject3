@@ -1,0 +1,28 @@
+/cm/local/apps/slurm/var/spool/job759646/slurm_script: line 13: /home/afrenk/KDDProject3/kdd/bin/activate: No such file or directory
+/cm/local/apps/slurm/var/spool/job759646/slurm_script: line 14: cd: model_runs: No such file or directory
+imports done
+Splitting data into training and testing sets.
+Standardizing training data.
+df done
+Running Gradient Boost Regression model...
+      Iter       Train Loss   Remaining Time 
+         1         519.8867           16.45m
+         2         492.9144           16.23m
+         3         470.1805           16.12m
+         4         451.4103           15.93m
+         5         435.7421           15.74m
+         6         422.2613           15.55m
+         7         410.2239           15.37m
+         8         400.3209           15.22m
+         9         391.7820           15.04m
+        10         384.0143           14.87m
+        20         340.1098           13.19m
+        30         322.7126           11.53m
+        40         312.9397            9.86m
+        50         307.6184            8.21m
+        60         303.6420            6.56m
+        70         300.4255            4.92m
+        80         297.3954            3.28m
+        90         294.8473            1.64m
+       100         291.9673            0.00s
+Gradient Boosting Results: RMSE: 17.120003922254586, R2: 0.47069114815112756, MAE: 12.400612203172793, Explained Variance Score: 0.4706912232107584, MSE: 293.09453429801243
