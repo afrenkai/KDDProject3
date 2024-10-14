@@ -1,8 +1,8 @@
 import logging
-from models import model_picker
+from logic.models import model_picker
 import pandas as pd
-from preprocess import preprocess
-from harder_models import SGDRegressor
+from utils.preprocess import preprocess
+
 print('imports done')
 
 logging.basicConfig(level=print, format='%(asctime)s - %(levelname)s - %(message)s')

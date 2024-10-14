@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 
-dir = 'data'
+dir = '../data'
 if not os.path.exists(dir):
     os.makedirs(dir)
 

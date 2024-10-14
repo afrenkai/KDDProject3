@@ -1,7 +1,7 @@
 import logging
-from models import model_picker
+from logic.models import model_picker
 import pandas as pd
-from preprocess import preprocess
+from utils.preprocess import preprocess
 
 print('imports done')
 
