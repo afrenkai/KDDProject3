@@ -22,3 +22,6 @@ WIP/Scrapped Models:
 
 - ``Long Short Term Memory(LSTM) ``
 - ``Support Vector Regression (SVR) ``
+
+Source of Data: 
+https://huggingface.co/datasets/gauss314/options-IV-SP500
