@@ -20,7 +20,7 @@ Currently Supported Models:
 
 WIP/Scrapped Models: 
 
-- ``Long Short Term Memory(LSTM) ``
+- ``Long Short Term Memory(LSTM) `` via ``lstm.ipynb ``
 - ``Support Vector Regression (SVR) ``
 
 Source of Data: 
