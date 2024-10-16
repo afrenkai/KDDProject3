@@ -3,11 +3,12 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import root_mean_squared_error, mean_absolute_error, r2_score, explained_variance_score
 from sklearn.svm import SVR
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from deep_models import SGDRegressor, OptionsNN
+from deep_models import SGDRegressor, OptionsLSTM, OptionsNN
 import torch
+import tensorflow as tf
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def model_picker(type: str, X_train, y_train, X_test, y_test, init_type = None):
+def model_picker(type: str, X_train, y_train, X_test, y_test, init_type = None, seq_len = None):
     logging.info(f"Starting model picker for model: {type}")
 
     if X_train is None or y_train is None or X_test is None or y_test is None:
@@ -74,33 +75,35 @@ def model_picker(type: str, X_train, y_train, X_test, y_test, init_type = None):
             evs = explained_variance_score(y_test, y_hat)
             mse = rmse ** 2
 
-        # elif type == 'Long Short Term Memory':
-        #     X_train_lstm = X_train.reshape((X_train.shape[0], 1, X_train.shape[1]))
-        #     X_test_lstm = X_test.reshape((X_test.shape[0], 1, X_test.shape[1]))
-        #
-        #     # Convert to torch tensors
-        #     X_train_lstm = torch.tensor(X_train_lstm, dtype=torch.float32)
-        #     y_train = torch.tensor(y_train, dtype=torch.float32).reshape(-1, 1)
-        #     X_test_lstm = torch.tensor(X_test_lstm, dtype=torch.float32)
-        #     y_test = torch.tensor(y_test, dtype=torch.float32).reshape(-1, 1)
-        #
-        #     # Initialize and train the LSTM model
-        #     input_size = X_train.shape[1]  # Number of features
-        #     lstm_model = OptionsLSTM(input_size=input_size, hidden_size=64, output_size=1, num_layers=1, dropout=0.2)
-        #     lstm_model.train_model(X_train_lstm, y_train, num_epochs=10)
-        #     logging.info("Training completed for LSTM model.")
-        #
-        #     # Get predictions
-        #     y_hat_tensor = lstm_model.predict(X_test_lstm)
-        #     y_hat = y_hat_tensor.detach().cpu().numpy()
-        #     y_test_np = y_test.detach().cpu().numpy()
-        #
-        #     # Calculate metrics
-        #     rmse = root_mean_squared_error(y_test_np, y_hat)
-        #     r2 = r2_score(y_test_np, y_hat)
-        #     mae = mean_absolute_error(y_test_np, y_hat)
-        #     evs = explained_variance_score(y_test_np, y_hat)
-        #     mse = rmse ** 2
+        elif type == 'Long Short Term Memory':
+            # Reshape for LSTM model, assuming data is already scaled
+            X_train_lstm = X_train.reshape((X_train.shape[0], seq_len, X_train.shape[1]))
+            X_test_lstm = X_test.reshape((X_test.shape[0], seq_len, X_test.shape[1]))
+
+            # Convert to TensorFlow tensors
+            X_train_lstm = tf.convert_to_tensor(X_train_lstm, dtype=tf.float32)
+            y_train = tf.convert_to_tensor(y_train, dtype=tf.float32)
+            X_test_lstm = tf.convert_to_tensor(X_test_lstm, dtype=tf.float32)
+            y_test = tf.convert_to_tensor(y_test, dtype=tf.float32)
+
+            # Initialize and train the LSTM model
+            input_size = X_train_lstm.shape[2]  # Number of features
+            lstm_model = OptionsLSTM(input_size=input_size, hidden_size=64, num_layers=2, eta=0.001)
+            lstm_model.train_model(X_train_lstm, y_train, epochs=10, batch_size=32)
+
+            # Evaluate the LSTM model
+            test_loss = lstm_model.evaluate(X_test_lstm, y_test)
+            logging.info(f'Test Loss (MSE): {test_loss:.4f}')
+
+            # Get predictions
+            y_hat = lstm_model.predict(X_test_lstm).flatten()
+
+            # Calculate metrics
+            rmse = root_mean_squared_error(y_test.numpy(), y_hat)
+            r2 = r2_score(y_test.numpy(), y_hat)
+            mae = mean_absolute_error(y_test.numpy(), y_hat)
+            evs = explained_variance_score(y_test.numpy(), y_hat)
+            mse = rmse ** 2
 
         elif type == 'SGD Linear Regression':
             logging.info("Initializing SGD Linear Regression model...")

@@ -4,7 +4,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
-
+import tensorflow as tf
+from tensorflow.keras import layers
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 logging.info(f"Using device: {device}")
 
@@ -19,7 +20,7 @@ class SGDRegressor:
     def predict(self, X):
         logging.info('predicting With SGD')
         return np.dot(X, self.w) + self.b
-    
+
     def fit(self, X, y):
         n, m = X.shape
         logging.info(f'Training began with {n} samples and {m} features')
@@ -381,4 +382,34 @@ class OptionsNN(nn.Module):
         # Move output back to CPU for compatibility with NumPy
         return y_pred.cpu()
 
+class OptionsLSTM:
+    def __init__(self, input_size, hidden_size = 64, num_layers = 2, eta = 0.001):
+        super(OptionsLSTM, self).__init__()
+        self.model = tf.keras.models.Sequential()
+        for i in range (num_layers):
+            return_sequences = i < (num_layers - 1)  # Only return sequences for layers before the last
+            self.model.add(layers.LSTM(hidden_size, return_sequences=return_sequences, input_shape=(None, input_size)))
+        self.model.add(layers.Dense(1))
+        self.model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=eta), loss='mean_squared_error')
+        self.model.summary()
 
+
+        def train_model(self, X_train, y_train, epochs=50, batch_size=32, val_data=None):
+            logging.info(f"Training model for {epochs} epochs with batch size {batch_size}")
+
+            history = self.model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=val_data,
+                                     verbose=1)
+
+            return history
+
+
+        def evaluate(self, X_test, y_test):
+            logging.info("Evaluating model on test data")
+            test_loss = self.model.evaluate(X_test, y_test, verbose=1)
+            logging.info(f'Test Loss (MSE): {test_loss:.4f}')
+            return test_loss
+
+
+        def predict(self, X):
+            logging.info("Making predictions")
+            return self.model.predict(X)

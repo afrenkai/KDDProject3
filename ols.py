@@ -1,7 +1,7 @@
 import logging
-from logic.models import model_picker
+from models import model_picker
 import pandas as pd
-from utils.preprocess import preprocess
+from preprocess import preprocess
 
 print('imports done')
 
@@ -11,11 +11,12 @@ df = pd.read_csv("data/options.csv")
 X_train_scaled, y_train, X_test_scaled, y_test = preprocess(df)
 print('df done')
 
-# Deep Neural Network
-print("Running Deep Neural Network model...")
-dnn_results = model_picker('Deep Neural Network',
-                           X_train=X_train_scaled,
+
+# Linear Regression
+print("Running Linear Regression model...")
+ols_results = model_picker('OLS Linear Regression',
+                           X_train = X_train_scaled,
                            y_train=y_train,
                            X_test=X_test_scaled,
                            y_test=y_test)
-print(f"DNN Results: {dnn_results}")
+print(f"OLS Results: {ols_results}")
