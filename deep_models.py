@@ -382,34 +382,86 @@ class OptionsNN(nn.Module):
         # Move output back to CPU for compatibility with NumPy
         return y_pred.cpu()
 
+
+import tensorflow as tf
+from tensorflow.keras import layers
+import logging
+
+
 class OptionsLSTM:
-    def __init__(self, input_size, hidden_size = 64, num_layers = 2, eta = 0.001):
+    def __init__(self, input_size, hidden_size=64, output_size=1, num_layers=2, eta=0.001, loss='mean_squared_error',
+                 activation='linear'):
+        """
+        General LSTM class for time series forecasting or sequence-based tasks.
+
+        Args:
+            input_size (int): Number of input features.
+            hidden_size (int): Number of units in LSTM layers.
+            output_size (int): Number of output units (for regression, set to 1).
+            num_layers (int): Number of LSTM layers.
+            eta (float): Learning rate for the Adam optimizer.
+            loss (str): Loss function for model compilation.
+            activation (str): Activation function for the output layer.
+        """
         super(OptionsLSTM, self).__init__()
         self.model = tf.keras.models.Sequential()
-        for i in range (num_layers):
-            return_sequences = i < (num_layers - 1)  # Only return sequences for layers before the last
+
+        # Adding LSTM layers
+        for i in range(num_layers):
+            return_sequences = i < (num_layers - 1)  # Only return sequences for all but the last LSTM layer
             self.model.add(layers.LSTM(hidden_size, return_sequences=return_sequences, input_shape=(None, input_size)))
-        self.model.add(layers.Dense(1))
-        self.model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=eta), loss='mean_squared_error')
+
+        # Output layer
+        self.model.add(layers.Dense(output_size, activation=activation))
+
+        # Compile model
+        self.model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=eta), loss=loss)
         self.model.summary()
 
+    def train_model(self, X_train, y_train, epochs=50, batch_size=32, val_data=None):
+        """
+        Train the LSTM model.
 
-        def train_model(self, X_train, y_train, epochs=50, batch_size=32, val_data=None):
-            logging.info(f"Training model for {epochs} epochs with batch size {batch_size}")
+        Args:
+            X_train (numpy.array): Training data (input).
+            y_train (numpy.array): Training labels (output).
+            epochs (int): Number of epochs.
+            batch_size (int): Batch size.
+            val_data (tuple): Validation data (X_val, y_val) if available.
 
-            history = self.model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=val_data,
-                                     verbose=1)
+        Returns:
+            history (History): Training history.
+        """
+        logging.info(f"Training model for {epochs} epochs with batch size {batch_size}")
+        history = self.model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=val_data,
+                                 verbose=1)
+        return history
 
-            return history
+    def evaluate(self, X_test, y_test):
+        """
+        Evaluate the model on test data.
 
+        Args:
+            X_test (numpy.array): Test data (input).
+            y_test (numpy.array): Test labels (output).
 
-        def evaluate(self, X_test, y_test):
-            logging.info("Evaluating model on test data")
-            test_loss = self.model.evaluate(X_test, y_test, verbose=1)
-            logging.info(f'Test Loss (MSE): {test_loss:.4f}')
-            return test_loss
+        Returns:
+            test_loss (float): Test loss (MSE).
+        """
+        logging.info("Evaluating model on test data")
+        test_loss = self.model.evaluate(X_test, y_test, verbose=1)
+        logging.info(f'Test Loss (MSE): {test_loss:.4f}')
+        return test_loss
 
+    def predict(self, X):
+        """
+        Predict using the trained model.
 
-        def predict(self, X):
-            logging.info("Making predictions")
-            return self.model.predict(X)
+        Args:
+            X (numpy.array): Input data for predictions.
+
+        Returns:
+            predictions (numpy.array): Model predictions.
+        """
+        logging.info("Making predictions")
+        return self.model.predict(X)
