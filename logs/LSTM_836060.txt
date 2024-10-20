@@ -1,0 +1,22 @@
+/cm/local/apps/slurm/var/spool/job836060/slurm_script: line 13: /home/afrenk/KDDProject3/kdd/bin/activate: No such file or directory
+2024-10-20 13:19:13.793550: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:485] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2024-10-20 13:19:13.939939: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:8454] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2024-10-20 13:19:13.991383: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1452] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2024-10-20 13:19:14.237529: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2024-10-20 13:19:16.937154: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+Imports done
+Traceback (most recent call last):
+  File "/home/afrenk/KDDProject3/lstm.py", line 18, in <module>
+    df = pd.read_csv("data/sample.csv")
+  File "/home/afrenk/KDDProject3/kdd3/lib/python3.10/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+  File "/home/afrenk/KDDProject3/kdd3/lib/python3.10/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+  File "/home/afrenk/KDDProject3/kdd3/lib/python3.10/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+  File "/home/afrenk/KDDProject3/kdd3/lib/python3.10/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+  File "/home/afrenk/KDDProject3/kdd3/lib/python3.10/site-packages/pandas/io/common.py", line 873, in get_handle
+    handle = open(
+FileNotFoundError: [Errno 2] No such file or directory: 'data/sample.csv'

@@ -1,0 +1,35 @@
+/cm/local/apps/slurm/var/spool/job836062/slurm_script: line 13: /home/afrenk/KDDProject3/kdd/bin/activate: No such file or directory
+/cm/local/apps/slurm/var/spool/job836062/slurm_script: line 14: cd: model_runs: No such file or directory
+2024-10-20 13:19:36.665169: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2024-10-20 13:19:36.678291: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:485] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2024-10-20 13:19:36.692671: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:8454] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2024-10-20 13:19:36.696988: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1452] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2024-10-20 13:19:36.709362: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2024-10-20 13:19:38.086660: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+imports done
+Splitting data into training and testing sets.
+Standardizing training data.
+df done
+Running Gradient Boost Regression model...
+      Iter       Train Loss   Remaining Time 
+         1         466.2988           22.36m
+         2         394.8783           21.99m
+         3         336.9633           21.70m
+         4         289.0977           21.43m
+         5         249.9542           21.20m
+         6         218.0625           20.97m
+         7         191.7528           20.73m
+         8         170.1368           20.49m
+         9         152.4903           20.28m
+        10         138.0465           20.05m
+        20          79.2411           17.78m
+        30          69.4627           15.55m
+        40          66.4011           13.31m
+        50          65.0164           11.09m
+        60          64.2465            8.86m
+        70          63.7086            6.64m
+        80          63.1979            4.43m
+        90          62.6472            2.21m
+       100          62.1072            0.00s
+Gradient Boosting Results: RMSE: 7.900075888294777, R2: 0.8869450930960802, MAE: 4.843166604566116, Explained Variance Score: 0.8869452019534871, MSE: 62.411199040816506
