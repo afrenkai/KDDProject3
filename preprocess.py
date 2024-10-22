@@ -14,11 +14,17 @@ def create_seq(features, target, seq_length):
     return np.array(X), np.array(y)
 
 # Preprocessing function
-def preprocess(df: pd.DataFrame, engi: bool = False, seq: bool = False, seq_len=None):
+def preprocess(df: pd.DataFrame, engi: bool = False, seq: bool = False, seq_len=None, remove_outliers:bool=False):
     df = df.sort_values(by=['symbol', 'date']).reset_index(drop=True)
     scaler = MinMaxScaler()
     # Dropping unwanted columns and extracting features/target
     feat = df.drop(columns=['Unnamed: 0', 'symbol', 'date', 'DITM_IV'])
+
+    if remove_outliers:
+        print("Removing outliers using isolation forests")
+        # use isolation forests to remove outliers
+        pass
+
     if seq_len and seq:
         print("Creating sequences.")
         scaled_feat = scaler.fit_transform(feat)
@@ -26,8 +32,11 @@ def preprocess(df: pd.DataFrame, engi: bool = False, seq: bool = False, seq_len=
         print("Splitting data into training and testing sets.")
         X_train, y_train, X_test, y_test = train_test_split(X, y, test_size=0.2, random_state=69, shuffle = False)
         return X_train, y_train, X_test, y_test
+   
     X = feat
     y = df['DITM_IV']
+
+
 
     print("Splitting data into training and testing sets.")
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=69)
