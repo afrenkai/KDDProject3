@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
+from sklearn.ensemble import IsolationForest
 import torch
 from torch.utils.data import DataLoader, TensorDataset
 import logging
@@ -16,14 +17,24 @@ def create_seq(features, target, seq_length):
 # Preprocessing function
 def preprocess(df: pd.DataFrame, engi: bool = False, seq: bool = False, seq_len=None, remove_outliers:bool=False):
     df = df.sort_values(by=['symbol', 'date']).reset_index(drop=True)
-    scaler = MinMaxScaler()
-    # Dropping unwanted columns and extracting features/target
-    feat = df.drop(columns=['Unnamed: 0', 'symbol', 'date', 'DITM_IV'])
-
+    df.drop(columns=['Unnamed: 0', 'symbol', 'date'], inplace=True)
+    # use isolation forests to remove outliers
     if remove_outliers:
         print("Removing outliers using isolation forests")
-        # use isolation forests to remove outliers
-        pass
+        iforest = IsolationForest(n_estimators = 100, contamination = 'auto', max_samples ='auto')
+        is_outlier = iforest.fit_predict(df)
+        num_outlier = is_outlier[is_outlier < 0].sum() * -1
+        num_inlier = is_outlier[is_outlier > 0].sum()
+        percent_removed = 100 * num_outlier/(num_outlier+num_inlier)
+        print(f"IsolationForest outlier detection removed {percent_removed}% rows")
+        print(f"{num_inlier} rows remaining")
+        df = df.iloc[is_outlier > 0]
+    
+    scaler = MinMaxScaler()
+    # Dropping unwanted columns and extracting features/target
+    feat = df.drop(columns=['DITM_IV'])
+
+
 
     if seq_len and seq:
         print("Creating sequences.")

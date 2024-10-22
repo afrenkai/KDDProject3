@@ -132,7 +132,6 @@ def fit_model(estimator: LinearRegression, estimator_name:str, X_train_scaled, X
 if __name__ == "__main__":
     # load data
     df = pd.read_csv("../data/options.csv") # load data
-
     for remove_outliers in [False, True]:
         # preprocess data
         X_train_scaled, y_train, X_test_scaled, y_test = preprocess(df, remove_outliers=remove_outliers)
