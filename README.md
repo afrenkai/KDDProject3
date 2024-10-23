@@ -25,3 +25,4 @@ WIP/Scrapped Models:
 
 Source of Data: 
 https://huggingface.co/datasets/gauss314/options-IV-SP500
+Paper: https://www.overleaf.com/project/6718263f88142f32df7f5d90
