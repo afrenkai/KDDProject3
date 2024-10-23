@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH -n 20
-#SBATCH --mem=50
+#SBATCH -n 32
+#SBATCH --mem=70g
 #SBATCH -J "Tune Model"
 #SBATCH -p short
 #SBATCH -t 16:00:00
