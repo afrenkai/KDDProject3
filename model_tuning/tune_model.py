@@ -121,7 +121,10 @@ def fit_model(estimator: LinearRegression, estimator_name:str, X_train_scaled, X
                outliers_removed:bool):
     print("Tuning OLS (only fits and saves)")
     regressor = estimator(n_jobs=-1)
+    start_time = perf_counter()
     regressor.fit(X_train_scaled, y_train)
+    print(f"OLS fit with remove_outliers={outliers_removed} took {perf_counter()-start_time} secs.")
+
     evaluate(regressor,X_train_scaled,y_train,X_test_scaled,y_test)
     save_model(regressor, estimator_name, None, outliers_removed)
     print(SEP) # easier to go through the logs
