@@ -135,7 +135,7 @@ if __name__ == "__main__":
     for remove_outliers in [False, True]:
         # preprocess data
         X_train_scaled, y_train, X_test_scaled, y_test = preprocess(df, remove_outliers=remove_outliers)
-        _, _, X_val_scaled, y_val = train_test_split(X_train_scaled, y_train, test_size=0.3,
+        _, X_val_scaled, _, y_val = train_test_split(X_train_scaled, y_train, test_size=0.3,
                                                                         random_state=69)
         # OLS 
         fit_model(LinearRegression, MP.OLS_NAME, X_train_scaled, 
