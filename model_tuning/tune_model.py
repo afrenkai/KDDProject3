@@ -77,7 +77,7 @@ def tune_model(estimator, params: dict, estimator_name:str, X_train_scaled, X_te
 
     print("Starting Grid Search with cv=3")
     grid_search = GridSearchCV(estimator=regressor, param_grid=params, 
-                            scoring='neg_mean_squared_error', cv=3, verbose=1, n_jobs=-1, refit=False)
+                            scoring='neg_mean_squared_error', cv=3, verbose=3, n_jobs=-1, refit=False)
     
     start_time = perf_counter()
     grid_search.fit(X_val_scaled, y_val)
@@ -98,7 +98,7 @@ def tune_model(estimator, params: dict, estimator_name:str, X_train_scaled, X_te
     print("Starting Randomized Search with cv=3")
     random_search = RandomizedSearchCV(estimator=regressor, param_distributions=params, 
                                    n_iter=random_search_iter, scoring='neg_mean_squared_error', cv=3, 
-                                   verbose=1, random_state=69, n_jobs=-1, refit=False)
+                                   verbose=3, random_state=69, n_jobs=-1, refit=False)
     
     start_time = perf_counter()
     random_search.fit(X_train_scaled, y_train)
@@ -135,14 +135,18 @@ def fit_model(estimator: LinearRegression, estimator_name:str, X_train_scaled, X
 if __name__ == "__main__":
     # load data
     df = pd.read_csv("../data/options.csv") # load data
+    df_subsample = df.sample(frac=0.3, random_state=69) # ~400,000
     for remove_outliers in [False, True]:
         # preprocess data
         X_train_scaled, y_train, X_test_scaled, y_test = preprocess(df, remove_outliers=remove_outliers)
-        _, X_val_scaled, _, y_val = train_test_split(X_train_scaled, y_train, test_size=0.3,
-                                                                        random_state=69)
+
         # OLS 
         fit_model(LinearRegression, MP.OLS_NAME, X_train_scaled, 
                 X_test_scaled, y_train, y_test, remove_outliers)
+        
+        # use subsample for the intensive training
+        X_train_scaled, y_train, X_test_scaled, y_test = preprocess(df_subsample, remove_outliers=remove_outliers)
+
         # random forest
         tune_model(RandomForestRegressor, MP.RF_PARAMS, MP.RF_NAME, X_train_scaled, 
                 X_test_scaled, y_train, y_test,remove_outliers)
