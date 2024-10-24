@@ -43,6 +43,15 @@ class SGDRegressor:
     def mse(y_true, y_hat):
         return np.mean((y_true - y_hat)) ** 2
 
+    def save_weights(self, file_path):
+        np.savez(file_path, w=self.w, b=self.b)
+        logging.info(f'Weights saved to {file_path}.npz')
+
+    def load_weights(self, file_path):
+        weights = np.load(file_path)
+        self.w = weights['w']
+        self.b = weights['b']
+        logging.info(f'Weights loaded from {file_path}.npz')
 
 # class LSTM:
 #     def __init__(self, input_size, hidden_size, output_size, eta=0.001):
