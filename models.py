@@ -130,6 +130,7 @@ def model_picker(type: str, X_train, y_train, X_test, y_test, init_type = None, 
             model.train_model(X_train, y_train)
             logging.info('training finished for DNN')
             y_hat_tensor = model.predict(X_test)
+            model.save_model('weights.pth')
             y_hat = y_hat_tensor.detach().cpu().numpy()
             y_test_np = y_test.detach().cpu().numpy()
 
