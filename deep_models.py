@@ -382,6 +382,14 @@ class OptionsNN(nn.Module):
         # Move output back to CPU for compatibility with NumPy
         return y_pred.cpu()
 
+    def save_model(self, file_path):
+        torch.save(self.state_dict(), file_path)
+        logging.info(f'Model weights saved to {file_path}')
+
+    def load_model(self, file_path):
+        self.load_state_dict(torch.load(file_path))
+        self.to(device)
+        logging.info(f'Model weights loaded from {file_path}')
 
 import tensorflow as tf
 from tensorflow.keras import layers
