@@ -45,13 +45,13 @@ class SGDRegressor:
 
     def save_weights(self, file_path):
         np.savez(file_path, w=self.w, b=self.b)
-        logging.info(f'Weights saved to {file_path}.npz')
+        logging.info(f'Weights saved to {file_path}')
 
     def load_weights(self, file_path):
         weights = np.load(file_path)
         self.w = weights['w']
         self.b = weights['b']
-        logging.info(f'Weights loaded from {file_path}.npz')
+        logging.info(f'Weights loaded from {file_path}')
 
 # class LSTM:
 #     def __init__(self, input_size, hidden_size, output_size, eta=0.001):
@@ -399,10 +399,6 @@ class OptionsNN(nn.Module):
         self.load_state_dict(torch.load(file_path))
         self.to(device)
         logging.info(f'Model weights loaded from {file_path}')
-
-import tensorflow as tf
-from tensorflow.keras import layers
-import logging
 
 
 class OptionsLSTM:
