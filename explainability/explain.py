@@ -88,7 +88,7 @@ EN_NAME = "Elastic Net"
 if __name__ == "__main__":
     print("Starting Explainability script")
     df = pd.read_csv("../data/options.csv")
-    df = df.sample(frac=0.01, random_state=69)
+    df = df.sample(frac=0.001, random_state=69)
     feature_names = df.columns.difference(['Unnamed: 0', 'symbol', 'date','DITM_IV'])
     df.drop(columns=['Unnamed: 0', 'symbol', 'date'], inplace=True)
     df.drop(columns=['DITM_IV'], inplace=True)
