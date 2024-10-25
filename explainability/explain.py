@@ -86,6 +86,7 @@ OLS_NAME = "OLS"
 EN_NAME = "Elastic Net"
 
 if __name__ == "__main__":
+    print("Starting Explainability script")
     df = pd.read_csv("../data/options.csv")
     df = df.sample(frac=0.25, random_state=69)
     feature_names = df.columns.difference(['Unnamed: 0', 'symbol', 'date','DITM_IV'])
@@ -96,24 +97,30 @@ if __name__ == "__main__":
 
     samples = [0, 2, 20]
 
+    print("Printing samples")
+    for i in samples:
+        print(i)
+        print(x[i])
+        print("----------------------------------------------------------")
+
     # OLS
     model = load_model(OLS_NAME, None, False)
-    get_shap_and_lime(model, OLS_NAME, x, feature_names, sample_indices=[0])
+    get_shap_and_lime(model, OLS_NAME, x, feature_names, sample_indices=samples)
 
 
     # EN
-    model = load_model(EN_NAME, False, False)
-    get_shap_and_lime(model, EN_NAME, x, feature_names, sample_indices=[0])
+    model = load_model(EN_NAME, True, False)
+    get_shap_and_lime(model, EN_NAME, x, feature_names, sample_indices=samples)
 
 
     # RF
-    model = load_model(RF_NAME, False, False)
-    get_shap_and_lime(model, RF_NAME, x, feature_names, sample_indices=[0])
+    model = load_model(RF_NAME, True, False)
+    get_shap_and_lime(model, RF_NAME, x, feature_names, sample_indices=samples)
 
 
     # HGB
-    model = load_model(HGB_NAME, False, False)
-    get_shap_and_lime(model, HGB_NAME, x, feature_names, sample_indices=[0,1,2])
+    model = load_model(HGB_NAME, True, False)
+    get_shap_and_lime(model, HGB_NAME, x, feature_names, sample_indices=samples)
 
 
 

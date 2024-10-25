@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -N 1
 #SBATCH -n 30
-#SBATCH --mem=100g
+#SBATCH --mem=160g
 #SBATCH -J "Shap explain"
 #SBATCH -p short
 #SBATCH -t 20:00:00
