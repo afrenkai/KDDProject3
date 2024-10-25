@@ -35,3 +35,15 @@ SVR_PARAMS = {
 }
 
 SVR_NAME = "Support Vector"
+
+
+
+# DNN
+
+DNN_PARAMS = {
+    'epochs': [10,20,50],
+    'batch_size': [16,32],
+    'learning_rate': [0.001, 0.005, 0.01]
+}
+
+DNN_NAME = "Deep Neural Network"

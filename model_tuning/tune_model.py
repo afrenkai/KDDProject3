@@ -7,6 +7,7 @@ from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.metrics import root_mean_squared_error, mean_absolute_error, r2_score, explained_variance_score
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import make_regression
+from models import OptionsNN
 from functools import reduce
 from math import ceil
 from joblib import dump
@@ -148,12 +149,15 @@ if __name__ == "__main__":
         X_train_scaled, y_train, X_test_scaled, y_test = preprocess(df_subsample, remove_outliers=remove_outliers)
 
         # random forest
-        tune_model(RandomForestRegressor, MP.RF_PARAMS, MP.RF_NAME, X_train_scaled, 
+        tune_model(RandomForestRegressor, MP.RF_PARAMS, MP.RF_NAME, X_train_scaled,
                 X_test_scaled, y_train, y_test,remove_outliers)
         # gradient boosting
-        tune_model(GradientBoostingRegressor, MP.GB_PARAMS, MP.GB_NAME, X_train_scaled, 
+        tune_model(GradientBoostingRegressor, MP.GB_PARAMS, MP.GB_NAME, X_train_scaled,
                 X_test_scaled, y_train, y_test, remove_outliers)
         # SVR
-        tune_model(SVR, MP.SVR_PARAMS, MP.SVR_NAME, X_train_scaled, 
+        tune_model(SVR, MP.SVR_PARAMS, MP.SVR_NAME, X_train_scaled,
+                X_test_scaled, y_train, y_test, remove_outliers)
+        # DNN
+        tune_model(OptionsNN, MP.DNN_PARAMS, MP.DNN_NAME, X_train_scaled,
                 X_test_scaled, y_train, y_test, remove_outliers)
         
