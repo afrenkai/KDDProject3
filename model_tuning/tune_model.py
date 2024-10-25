@@ -10,15 +10,15 @@ from sklearn.datasets import make_regression
 from models import OptionsNN
 from functools import reduce
 from math import ceil
-from joblib import dump
+from joblib import dump, cpu_count
 from os import path, makedirs
 from time import perf_counter
 import model_params as MP
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.linear_model import LinearRegression
-from sklearn.svm import SVR
+from sklearn.ensemble import RandomForestRegressor, HistGradientBoostingRegressor, GradientBoostingRegressor
+from sklearn.linear_model import LinearRegression, ElasticNet
 
-ITERATION_MULTIPLIER = 0.4 # controls number of fits for the random search cv
+
+ITERATION_MULTIPLIER = 0.3 # controls number of fits for the random search cv
 SEP = "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 
 
@@ -45,7 +45,7 @@ def save_model(regressor, estimator_name:str, grid_search:bool|None, outliers_re
     save_name = get_save_name(estimator_name, grid_search, outliers_removed)
     save_name = model_dir + "/" + save_name
     print(f"Saving model to {save_name}")
-    dump(regressor, save_name, compress=3)
+    dump(regressor, save_name, compress=6)
 
 
 def evaluate(estimator, X_train_scaled, y_train, X_test_scaled, y_test):
@@ -62,9 +62,9 @@ def evaluate(estimator, X_train_scaled, y_train, X_test_scaled, y_test):
     print(f"RMSE: {rmse}, RMSE_train: {rmse_train}, MSE: {mse}, MSE_train: {mse_train}, \
           R2: {r2}, R2_train: {r2_train}, MAE: {mae}, EVS: {evs}")
 
-
+# here X_full_scaled and Y_full_scaled means the full train sample rather than the subsample used
 def tune_model(estimator, params: dict, estimator_name:str, X_train_scaled, X_test_scaled, y_train, y_test,
-               outliers_removed:bool):
+               outliers_removed:bool, X_full_scaled, y_full_scaled):
     total_fits_needed = reduce(lambda x, y: x*y,[len(param_values) for param_values in params.values()], 1)
     random_search_iter = ceil(total_fits_needed*ITERATION_MULTIPLIER)
 
@@ -78,7 +78,7 @@ def tune_model(estimator, params: dict, estimator_name:str, X_train_scaled, X_te
 
     print("Starting Grid Search with cv=3")
     grid_search = GridSearchCV(estimator=regressor, param_grid=params, 
-                            scoring='neg_mean_squared_error', cv=3, verbose=3, n_jobs=-1, refit=False)
+                            scoring='neg_mean_squared_error', cv=3, verbose=1, n_jobs=-1, refit=False)
     
     start_time = perf_counter()
     grid_search.fit(X_val_scaled, y_val)
@@ -86,8 +86,9 @@ def tune_model(estimator, params: dict, estimator_name:str, X_train_scaled, X_te
     best_grid_cv_params = grid_search.best_params_
     regressor = estimator()
 
+
     regressor.set_params(**best_grid_cv_params)
-    regressor.fit(X_train_scaled,y_train)
+    regressor.fit(X_full_scaled,y_full_scaled)
     
     print("Best Params from grid search")
     print(best_grid_cv_params)
@@ -99,7 +100,7 @@ def tune_model(estimator, params: dict, estimator_name:str, X_train_scaled, X_te
     print("Starting Randomized Search with cv=3")
     random_search = RandomizedSearchCV(estimator=regressor, param_distributions=params, 
                                    n_iter=random_search_iter, scoring='neg_mean_squared_error', cv=3, 
-                                   verbose=3, random_state=69, n_jobs=-1, refit=False)
+                                   verbose=1, random_state=69, n_jobs=-1, refit=False)
     
     start_time = perf_counter()
     random_search.fit(X_train_scaled, y_train)
@@ -108,7 +109,7 @@ def tune_model(estimator, params: dict, estimator_name:str, X_train_scaled, X_te
     best_random_cv_params = random_search.best_params_
     regressor = estimator()
     regressor.set_params(**best_random_cv_params)
-    regressor.fit(X_train_scaled,y_train)
+    regressor.fit(X_full_scaled,y_full_scaled)
     print("Best Params from random search")
     print(best_random_cv_params)
     print("Evaluating best model from random search:")
@@ -118,10 +119,8 @@ def tune_model(estimator, params: dict, estimator_name:str, X_train_scaled, X_te
 
 
 # used exclusively for OLS
-def fit_model(estimator: LinearRegression, estimator_name:str, X_train_scaled, X_test_scaled, y_train, y_test,
+def fit_model(regressor, estimator_name:str, X_train_scaled, X_test_scaled, y_train, y_test,
                outliers_removed:bool):
-    print("Tuning OLS (only fits and saves)")
-    regressor = estimator(n_jobs=-1)
     start_time = perf_counter()
     regressor.fit(X_train_scaled, y_train)
     print(f"OLS fit with remove_outliers={outliers_removed} took {perf_counter()-start_time} secs.")
@@ -134,20 +133,34 @@ def fit_model(estimator: LinearRegression, estimator_name:str, X_train_scaled, X
 
 
 if __name__ == "__main__":
+    print(f"Running Tuning Script with {cpu_count()} CPU cores")
     # load data
     df = pd.read_csv("../data/options.csv") # load data
-    df_subsample = df.sample(frac=0.3, random_state=69) # ~400,000
+    df_subsample = df.sample(frac=0.25, random_state=69) # ~400,000
+    hist_grad_boost_hack = True # sry this is bad code, but efficient in this case
     for remove_outliers in [False, True]:
         # preprocess data
-        X_train_scaled, y_train, X_test_scaled, y_test = preprocess(df, remove_outliers=remove_outliers)
+        X_train_scaled_full, y_train_full, X_test_scaled_full, y_test_full = preprocess(df, remove_outliers=remove_outliers)
 
-        # OLS 
-        fit_model(LinearRegression, MP.OLS_NAME, X_train_scaled, 
-                X_test_scaled, y_train, y_test, remove_outliers)
-        
+  
         # use subsample for the intensive training
         X_train_scaled, y_train, X_test_scaled, y_test = preprocess(df_subsample, remove_outliers=remove_outliers)
 
+        if hist_grad_boost_hack:
+            hist_grad_boost_hack = False
+            # this is a hacky/lazy way of running an un-tuned model in the tune loop.
+            fit_model(HistGradientBoostingRegressor(random_state=69), 
+                       MP.HGB_NAME+" Initial", X_train_scaled_full, X_test_scaled_full, y_train_full, y_test_full,remove_outliers)
+
+      # OLS
+        fit_model(LinearRegression(n_jobs=-1), 
+                       MP.OLS_NAME, X_train_scaled_full, X_test_scaled_full, y_train_full, y_test_full,remove_outliers)
+
+
+        # elastic net
+        tune_model(ElasticNet, MP.EN_PARAMS, MP.EN_NAME, X_train_scaled, 
+                X_test_scaled, y_train, y_test, remove_outliers, X_train_scaled_full, y_train_full)
+        
         # random forest
         tune_model(RandomForestRegressor, MP.RF_PARAMS, MP.RF_NAME, X_train_scaled,
                 X_test_scaled, y_train, y_test,remove_outliers)
@@ -160,4 +173,6 @@ if __name__ == "__main__":
         # DNN
         tune_model(OptionsNN, MP.DNN_PARAMS, MP.DNN_NAME, X_train_scaled,
                 X_test_scaled, y_train, y_test, remove_outliers)
-        
+        # histogram gradient boosting
+        tune_model(HistGradientBoostingRegressor, MP.HGB_PARAMS, MP.HGB_NAME, X_train_scaled, 
+                X_test_scaled, y_train, y_test, remove_outliers, X_train_scaled_full, y_train_full)

@@ -7,3 +7,5 @@ tensorflow
 huggingface_hub
 joblib
 shap
+matplotlib
+lime
