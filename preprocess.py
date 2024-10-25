@@ -6,6 +6,7 @@ from sklearn.ensemble import IsolationForest
 import torch
 from torch.utils.data import DataLoader, TensorDataset
 import logging
+from joblib import dump
 
 def create_seq(features, target, seq_length):
     X, y = [], []
@@ -14,6 +15,7 @@ def create_seq(features, target, seq_length):
         y.append(target[i + seq_length])
     return np.array(X), np.array(y)
 
+SAVE_SCALER = False
 # Preprocessing function
 def preprocess(df: pd.DataFrame, engi: bool = False, seq: bool = False, seq_len=None, remove_outliers:bool=False):
     df = df.sort_values(by=['symbol', 'date']).reset_index(drop=True)
@@ -55,6 +57,9 @@ def preprocess(df: pd.DataFrame, engi: bool = False, seq: bool = False, seq_len=
     print("Standardizing training data.")
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
+
+    if SAVE_SCALER:
+        dump(scaler, "fullScaler.sav", compress=1)
 
     # If sequential data is required for LSTM, reshape the data into sequences
     # if seq and seq_len:
