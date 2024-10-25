@@ -92,6 +92,8 @@ if __name__ == "__main__":
     feature_names = df.columns.difference(['Unnamed: 0', 'symbol', 'date','DITM_IV'])
     df.drop(columns=['Unnamed: 0', 'symbol', 'date'], inplace=True)
     df.drop(columns=['DITM_IV'], inplace=True)
+    df = df.sample(frac=0.4, random_state=69) # subsample
+
     scaler = load_scaler() 
     x = scaler.transform(df)
 
@@ -112,11 +114,12 @@ if __name__ == "__main__":
     # model = load_model(EN_NAME, True, False)
     # get_shap_and_lime(model, EN_NAME, x, feature_names, sample_indices=samples)
 
+
+
     # HGB
     model = load_model(HGB_NAME, True, False)
     get_shap_and_lime(model, HGB_NAME, x, feature_names, sample_indices=samples)
 
-    df = df.sample(frac=0.5, random_state=69)
 
     # RF
     model = load_model(RF_NAME, True, False)
