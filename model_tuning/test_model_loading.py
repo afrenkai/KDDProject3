@@ -10,7 +10,7 @@ def load_model(estimator_name:str, grid_search:bool, outliers_removed:bool):
     return regressor
 
 if __name__ == "__main__":
-    reg = load_model(MP.SVR_NAME, True, False)
+    reg = load_model(MP.DNN_NAME, True, False)
     x, y = make_regression(n_samples=300, n_features=2, noise=10, random_state=69)
     X_train_scaled, X_test_scaled, y_train, y_test = train_test_split(x, y, test_size=0.3,
                                                                       random_state=69)

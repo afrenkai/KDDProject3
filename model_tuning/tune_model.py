@@ -7,13 +7,14 @@ from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.metrics import root_mean_squared_error, mean_absolute_error, r2_score, explained_variance_score
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import make_regression
+from models import OptionsNN
 from functools import reduce
 from math import ceil
 from joblib import dump, cpu_count
 from os import path, makedirs
 from time import perf_counter
 import model_params as MP
-from sklearn.ensemble import RandomForestRegressor, HistGradientBoostingRegressor
+from sklearn.ensemble import RandomForestRegressor, HistGradientBoostingRegressor, GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression, ElasticNet
 
 
@@ -161,8 +162,17 @@ if __name__ == "__main__":
                 X_test_scaled, y_train, y_test, remove_outliers, X_train_scaled_full, y_train_full)
         
         # random forest
-        tune_model(RandomForestRegressor, MP.RF_PARAMS, MP.RF_NAME, X_train_scaled, 
-                X_test_scaled, y_train, y_test,remove_outliers, X_train_scaled_full, y_train_full)
+        tune_model(RandomForestRegressor, MP.RF_PARAMS, MP.RF_NAME, X_train_scaled,
+                X_test_scaled, y_train, y_test,remove_outliers)
+        # gradient boosting
+        tune_model(GradientBoostingRegressor, MP.GB_PARAMS, MP.GB_NAME, X_train_scaled,
+                X_test_scaled, y_train, y_test, remove_outliers)
+        # SVR
+        tune_model(SVR, MP.SVR_PARAMS, MP.SVR_NAME, X_train_scaled,
+                X_test_scaled, y_train, y_test, remove_outliers)
+        # DNN
+        tune_model(OptionsNN, MP.DNN_PARAMS, MP.DNN_NAME, X_train_scaled,
+                X_test_scaled, y_train, y_test, remove_outliers)
         # histogram gradient boosting
         tune_model(HistGradientBoostingRegressor, MP.HGB_PARAMS, MP.HGB_NAME, X_train_scaled, 
                 X_test_scaled, y_train, y_test, remove_outliers, X_train_scaled_full, y_train_full)

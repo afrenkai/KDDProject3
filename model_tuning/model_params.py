@@ -34,3 +34,20 @@ EN_PARAMS = {
         'l1_ratio': list(np.linspace(0.2,1,6)),
         'random_state': [69]
 }
+<<<<<<< HEAD
+
+SVR_NAME = "Support Vector"
+
+
+
+# DNN
+
+DNN_PARAMS = {
+    'epochs': [10,20,50],
+    'batch_size': [16,32],
+    'learning_rate': [0.001, 0.005, 0.01]
+}
+
+DNN_NAME = "Deep Neural Network"
+=======
+>>>>>>> 257a803f804b9b0c7f0a99db232359e6c7dae415
