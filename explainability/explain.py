@@ -103,24 +103,26 @@ if __name__ == "__main__":
         print(x[i])
         print("----------------------------------------------------------")
 
-    # OLS
-    model = load_model(OLS_NAME, None, False)
-    get_shap_and_lime(model, OLS_NAME, x, feature_names, sample_indices=samples)
+    # # OLS
+    # model = load_model(OLS_NAME, None, False)
+    # get_shap_and_lime(model, OLS_NAME, x, feature_names, sample_indices=samples)
 
 
-    # EN
-    model = load_model(EN_NAME, True, False)
-    get_shap_and_lime(model, EN_NAME, x, feature_names, sample_indices=samples)
-
-
-    # RF
-    model = load_model(RF_NAME, True, False)
-    get_shap_and_lime(model, RF_NAME, x, feature_names, sample_indices=samples)
-
+    # # EN
+    # model = load_model(EN_NAME, True, False)
+    # get_shap_and_lime(model, EN_NAME, x, feature_names, sample_indices=samples)
 
     # HGB
     model = load_model(HGB_NAME, True, False)
     get_shap_and_lime(model, HGB_NAME, x, feature_names, sample_indices=samples)
+
+    df = df.sample(frac=0.5, random_state=69)
+
+    # RF
+    model = load_model(RF_NAME, True, False)
+    print("RF loaded")
+    get_shap_and_lime(model, RF_NAME, x, feature_names, sample_indices=samples)
+
 
 
 

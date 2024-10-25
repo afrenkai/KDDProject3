@@ -10,4 +10,4 @@
 module load python/3.10.13
 source ~/KDDProject3/kdd/bin/activate
 cd explainability
-python explain.py
+python -u explain.py
