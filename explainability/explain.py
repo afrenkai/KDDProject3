@@ -1,11 +1,5 @@
-import lime
-import sys
-# hacky import for hacky project structure
-sys.path.append("../")
-from preprocess import preprocess
 from joblib import load
 import pandas as pd
-from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 from lime import lime_tabular
 import shap
